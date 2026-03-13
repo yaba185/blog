@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>המוח הגמיש - יהודה בר אילן</title>
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap');
+        body { font-family: 'Heebo', sans-serif; }
+        .animate-fade-in { animation: fadeIn 0.7s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .bg-caramel { background-color: #f5e6d3; }
+        .border-caramel { border-color: #d4a373; }
+        .profile-image-container {
+            position: relative;
+            width: 200px;
+            height: 250px;
+            background: #e2e8f0;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-stone-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const [svg, setSvg] = useState("");
+            useEffect(() => {
+                if (window.lucide) {
+                    const iconNode = window.lucide.icons[name];
+                    if (iconNode) {
+                        const svgString = iconNode.map(tag => {
+                            const [tagName, attrs] = tag;
+                            const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+                            return `<${tagName} ${attrStr} />`;
+                        }).join('');
+                        setSvg(svgString);
+                    }
+                }
+            }, [name]);
+            return (
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: svg }} />
+            );
+        };
+
+        const MY_NAME = "יהודה בר אילן";
+        const MY_PERMANENT_PHONE = "050-6617311";
+
+        const Navbar = ({ activeTab, setActiveTab }) => {
+            const navItems = [
+                { id: 'home', label: 'ראשי', icon: 'Home' },
+                { id: 'about', label: 'אודות והכשרה', icon: 'GraduationCap' },
+                { id: 'articles', label: 'מאמרים ומקורות', icon: 'BookOpen' },
+                { id: 'contact', label: 'צרו קשר', icon: 'Phone' },
+            ];
+            return (
+                <nav className="sticky top-0 z-50 bg-stone-900 text-stone-50 shadow-xl">
+                    <div className="max-w-6xl mx-auto px-4 flex justify-between items-center py-4">
+                        <div className="flex items-center cursor-pointer group" onClick={() => setActiveTab('home')}>
+                            <Icon name="Brain" size={32} className="text-orange-400 ml-2" />
+                            <span className="text-xl font-bold tracking-tight">המוח הגמיש</span>
+                        </div>
+                        <div className="flex space-x-1 md:space-x-2 space-x-reverse">
+                            {navItems.map(item => (
+                                <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center px-3 py-2 rounded-xl text-sm md:text-base transition-all ${activeTab === item.id ? 'bg-orange-600' : 'hover:bg-stone-800'}`}>
+                                    <Icon name={item.icon} size={18} className="ml-1" />
+                                    <span className="hidden sm:inline">{item.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+
+        const Home = () => (
+            <div className="animate-fade-in">
+                <header className="text-center py-20 bg-gradient-to-b from-orange-100/50 to-white rounded-b-[5rem] mb-16 border-b border-orange-100">
+                    <div className="w-48 h-48 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner border-4 border-white">
+                        <Icon name="Music" size={70} className="text-orange-600" />
+                    </div>
+                    <h1 className="text-4xl md:text-7xl font-black text-stone-800 mb-4 px-4 leading-tight">המוח הגמיש</h1>
+                    <h2 className="text-2xl md:text-3xl font-bold text-orange-600 mb-6">{MY_NAME}</h2>
+                    <p className="text-xl md:text-2xl text-stone-600 max-w-4xl mx-auto px-6 font-light italic mb-10">
+                        "מפגשים חווייתיים המשלבים 45 שנות ניסיון קליני, מוסיקה ותנועה לשיפור איכות החיים בגיל השלישי והרביעי"
+                    </p>
+                    <div className="text-stone-400 font-medium text-lg italic">
+                        "המוסיקה מתחילה היכן שנגמרות המילים"
+                    </div>
+                </header>
+
+                <div className="max-w-6xl mx-auto px-4 pb-24">
+                    {/* שורה ראשונה - 3 דגשים */}
+                    <div className="grid md:grid-cols-3 gap-8 mb-8">
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-orange-500 text-center">
+                            <Icon name="Zap" size={40} className="text-orange-600 mx-auto mb-4" />
+                            <h3 className="text-2xl font-bold mb-4 text-stone-800">המאזן ההורמונאלי</h3>
+                            <p className="text-stone-600 leading-relaxed">
+                                הפחתת <strong>קורטיזול</strong> (מתח) והגברה משמעותית של <strong>אנדורפינים</strong> ודופמין. שיפור מיידי בחיוניות וביכולת הריכוז.
+                            </p>
+                        </div>
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-amber-500 text-center">
+                            <Icon name="Heart" size={40} className="text-amber-600 mx-auto mb-4" />
+                            <h3 className="text-2xl font-bold mb-4 text-stone-800">מעגל הזיכרון והרגש</h3>
+                            <p className="text-stone-600 leading-relaxed">
+                                הפעלת המערכת הלימבית לשימור זהות עצמית ורוגע פנימי דרך צלילי עבר וזיכרונות אוטוביוגרפיים.
+                            </p>
+                        </div>
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-rose-500 text-center">
+                            <Icon name="Users" size={40} className="text-rose-600 mx-auto mb-4" />
+                            <h3 className="text-2xl font-bold mb-4 text-stone-800">הפגת בדידות</h3>
+                            <p className="text-stone-600 leading-relaxed">
+                                חיזוק השייכות הקהילתית והפחתת תחושת הבדידות דרך יצירת מעגלים חברתיים בשירה ותנועה.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* שורה שנייה - 2 דגשים מרכזיים */}
+                    <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-blue-500 text-center">
+                            <Icon name="Activity" size={40} className="text-blue-600 mx-auto mb-4" />
+                            <h3 className="text-2xl font-bold mb-4 text-stone-800">תנועה וטמפו</h3>
+                            <p className="text-stone-600 leading-relaxed">
+                                סנכרון התנועה עם קצב המוסיקה (Tempo) לשיפור קואורדינציה, שיווי משקל וביטחון בתנועה במרחב.
+                            </p>
+                        </div>
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-emerald-500 text-center">
+                            <Icon name="Sun" size={40} className="text-emerald-600 mx-auto mb-4" />
+                            <h3 className="text-2xl font-bold mb-4 text-stone-800">אווירה וחוסן</h3>
+                            <p className="text-stone-600 leading-relaxed">
+                                יצירת שמחה וצחוק המעלים את החוסן הנפשי והיכולת להתמודד עם אתגרי הגיל בחיוביות.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const About = () => {
+            const [imagePreview, setImagePreview] = useState(null);
+
+            const handleImageChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImagePreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto px-4 py-16 animate-fade-in">
+                    <h2 className="text-4xl font-bold text-stone-800 mb-10 text-center">אודות והכשרה מקצועית</h2>
+                    
+                    <div className="bg-sky-50 rounded-[3rem] shadow-2xl overflow-hidden border border-sky-100 md:flex">
+                        <div className="md:w-2/5 bg-caramel p-10 flex flex-col items-center justify-center border-l border-caramel">
+                            <div className="profile-image-container mb-6 group cursor-pointer" onClick={() => document.getElementById('fileInput').click()}>
+                                {imagePreview ? (
+                                    <img src={imagePreview} alt="פרופיל" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-stone-400">
+                                        <Icon name="Camera" size={40} className="mb-2" />
+                                        <span className="text-xs">הוסף תמונת פרופיל</span>
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <Icon name="Edit" size={24} className="text-white" />
+                                </div>
+                                <input id="fileInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-stone-800">{MY_NAME}</h3>
+                            <p className="text-stone-600 font-medium text-center">מומחה לגיל השלישי והרביעי</p>
+                        </div>
+
+                        <div className="md:w-3/5 p-10 space-y-6">
+                            <h4 className="text-2xl font-bold text-stone-800 border-b-2 border-orange-200 pb-2">הכשרה אקדמית וקלינית</h4>
+                            <ul className="space-y-4 text-lg">
+                                <li className="flex gap-3">
+                                    <Icon name="Award" className="text-orange-600 shrink-0" />
+                                    <span><strong>תואר ראשון בסיעוד מורחב</strong></span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <Icon name="Award" className="text-orange-600 shrink-0" />
+                                    <span><strong>תואר שני בחינוך (M.A)</strong> - התמחות בטכנולוגיות תקשוב ולמידה.</span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
+                                    <span><strong>התמחות על באונקולוגיה</strong></span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
+                                    <span><strong>התמחות על בהדרכה קלינית</strong></span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
+                                    <span><strong>התמחות בהנחיית קבוצות</strong></span>
+                                </li>
+                                <li className="flex gap-3">
+                                    <Icon name="History" className="text-orange-600 shrink-0" />
+                                    <span>ניסיון קליני רב בטיפול בגיל השלישי והרביעי.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Articles = () => {
+            const [expanded, setExpanded] = useState(null);
+            const articles = [
+                { id: 1, title: "מוסיקה ככלי לשיפור איכות החיים בדמנציה", summary: "מחקרים מראים כי אזורי הזיכרון המוסיקלי במוח נשמרים זמן רב יותר.", details: "השימוש במוסיקה מותאמת אישית מפחית תסמיני חרדה ודיכאון.", source: "Journal of Alzheimer's Disease", link: "#" },
+                { id: 2, title: "השפעת השירה הקבוצתית על רמות האוקסיטוצין", summary: "שירה משותפת מעלה באופן מיידי את רמת 'הורמון האהבה'.", details: "מעבר לשיפור הפיזיולוגי, השירה מייצרת 'סנכרון חברתי' חיוני.", source: "Frontiers in Psychology", link: "#" },
+                { id: 3, title: "נוירופלסטיות בגיל השלישי", summary: "האם המוח יכול להשתנות בגיל 80? התשובה היא כן מוחלט.", details: "למידה של מקצבים בונה קשרים עצביים חדשים ומחזקת את הרזרבה הקוגניטיבית.", source: "Nature Neuroscience", link: "#" },
+                { id: 4, title: "מניעת נפילות באמצעות גירוי שמיעתי", summary: "כיצד קצב מוסיקלי קבוע עוזר בייצוב ההליכה.", details: "המוח מסתנכרן עם הקצב, מה שמוביל להליכה בטוחה יותר.", source: "Archives of Phys. Med.", link: "#" },
+                { id: 5, title: "המעגל ההורמונאלי והשפעותיו", summary: "הקשר בין אדרנלין, דופמין ויכולת הריכוז.", details: "פעילות מהנה ומאתגרת תומכת בשימור הזיכרון לטווח ארוך.", source: "Endocrine Reviews", link: "#" }
+            ];
+            return (
+                <div className="max-w-4xl mx-auto px-4 py-16 animate-fade-in">
+                    <h2 className="text-4xl font-bold text-stone-800 mb-12 text-center">מאמרים ומקורות</h2>
+                    <div className="space-y-6">
+                        {articles.map(art => (
+                            <div key={art.id} className="bg-white p-8 rounded-3xl shadow-lg border border-stone-100">
+                                <h3 className="text-2xl font-bold text-orange-700 mb-2">{art.title}</h3>
+                                <p className="text-stone-600 text-lg mb-4">{art.summary}</p>
+                                {expanded === art.id ? (
+                                    <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-t">
+                                        <p className="mb-4 italic">{art.details}</p>
+                                        <p className="text-sm text-stone-500 mb-2 font-bold">מקור: {art.source}</p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-orange-600 font-bold cursor-pointer hover:underline">קריאה של המקור המלא</span>
+                                            <button onClick={() => setExpanded(null)} className="text-stone-400">סגור</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => setExpanded(art.id)} className="text-orange-600 font-bold flex items-center gap-2">לדגשי המאמר והמקורות <Icon name="ChevronLeft" size={18} /></button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const Contact = () => (
+            <div className="max-w-4xl mx-auto px-4 py-20 text-center animate-fade-in">
+                <div className="bg-white p-16 rounded-[4rem] shadow-2xl border border-stone-100 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-orange-600"></div>
+                    <Icon name="Phone" size={64} className="text-orange-600 mx-auto mb-8" />
+                    <h2 className="text-4xl font-bold mb-6 text-stone-800 italic">"מחכה להתרגש איתכם במפגש הבא"</h2>
+                    <p className="text-2xl text-stone-500 mb-12 leading-relaxed">לפרטים נוספים ותיאום סדנאות:</p>
+                    
+                    <div className="bg-stone-50 py-10 px-16 rounded-[2.5rem] inline-block shadow-inner border border-stone-200">
+                        <p className="text-stone-400 text-sm mb-2 uppercase tracking-widest">מספר הטלפון הישיר שלי</p>
+                        <span className="text-5xl md:text-7xl font-black text-stone-900 block" style={{direction: 'ltr'}}>
+                            {MY_PERMANENT_PHONE}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('home');
+            useEffect(() => window.scrollTo(0, 0), [activeTab]);
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <main className="flex-grow">
+                        {activeTab === 'home' && <Home />}
+                        {activeTab === 'about' && <About />}
+                        {activeTab === 'articles' && <Articles />}
+                        {activeTab === 'contact' && <Contact />}
+                    </main>
+                    <footer className="bg-stone-900 text-stone-400 py-12 text-center">
+                        <p className="text-xl font-bold text-white mb-2 italic">המוח הגמיש - צליל, תנועה וחוסן</p>
+                        <p className="text-orange-400 italic mb-4">"המוסיקה מתחילה היכן שנגמרות המילים"</p>
+                        <p>© {new Date().getFullYear()} | {MY_NAME} | {MY_PERMANENT_PHONE}</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
