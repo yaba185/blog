@@ -1,297 +1,278 @@
 
-<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>המוח הגמיש - יהודה בר אילן</title>
-    <!-- External Libraries -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap');
-        body { font-family: 'Heebo', sans-serif; }
-        .animate-fade-in { animation: fadeIn 0.7s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .bg-caramel { background-color: #f5e6d3; }
-        .border-caramel { border-color: #d4a373; }
-        .profile-image-container {
-            position: relative;
-            width: 200px;
-            height: 250px;
-            background: #e2e8f0;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            border: 4px solid white;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap');
+        body { font-family: 'Heebo', sans-serif; scroll-behavior: smooth; background-color: #fcfcfb; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .timeline-dot { position: relative; }
+        .timeline-dot::before { content: ''; position: absolute; right: -9px; top: 0; width: 18px; height: 18px; border-radius: 50%; background: #f97316; border: 4px solid #fff; box-shadow: 0 0 0 1px #e5e7eb; }
     </style>
 </head>
-<body class="bg-stone-50">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        const Icon = ({ name, size = 24, className = "" }) => {
-            const [svg, setSvg] = useState("");
+        const Icon = ({ name, size = 20, className = "" }) => {
             useEffect(() => {
-                if (window.lucide) {
-                    const iconNode = window.lucide.icons[name];
-                    if (iconNode) {
-                        const svgString = iconNode.map(tag => {
-                            const [tagName, attrs] = tag;
-                            const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
-                            return `<${tagName} ${attrStr} />`;
-                        }).join('');
-                        setSvg(svgString);
-                    }
-                }
+                if (window.lucide) window.lucide.createIcons();
             }, [name]);
-            return (
-                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: svg }} />
-            );
+            return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={`inline-block ${className}`} style={{width: size, height: size}}></i>;
         };
 
         const MY_NAME = "יהודה בר אילן";
-        const MY_PERMANENT_PHONE = "050-6617311";
+        const MY_PHONE = "050-6617311";
+        const WHATSAPP_LINK = `https://wa.me/972506617311`;
 
-        const Navbar = ({ activeTab, setActiveTab }) => {
-            const navItems = [
-                { id: 'home', label: 'ראשי', icon: 'Home' },
-                { id: 'about', label: 'אודות והכשרה', icon: 'GraduationCap' },
-                { id: 'articles', label: 'מאמרים ומקורות', icon: 'BookOpen' },
-                { id: 'contact', label: 'צרו קשר', icon: 'Phone' },
-            ];
-            return (
-                <nav className="sticky top-0 z-50 bg-stone-900 text-stone-50 shadow-xl">
-                    <div className="max-w-6xl mx-auto px-4 flex justify-between items-center py-4">
-                        <div className="flex items-center cursor-pointer group" onClick={() => setActiveTab('home')}>
-                            <Icon name="Brain" size={32} className="text-orange-400 ml-2" />
-                            <span className="text-xl font-bold tracking-tight">המוח הגמיש</span>
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('home');
+            const [profileImage, setProfileImage] = useState(null);
+            const fileInputRef = useRef(null);
+
+            const Navbar = () => (
+                <nav className="sticky top-0 z-50 glass-effect border-b border-stone-100">
+                    <div className="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
+                        <div className="flex items-center gap-3 font-black text-2xl text-stone-800 cursor-pointer group" onClick={() => setActiveTab('home')}>
+                            <div className="bg-orange-600 p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
+                                <Icon name="Brain" className="text-white" size={24} />
+                            </div>
+                            <span>המוח הגמיש</span>
                         </div>
-                        <div className="flex space-x-1 md:space-x-2 space-x-reverse">
-                            {navItems.map(item => (
-                                <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center px-3 py-2 rounded-xl text-sm md:text-base transition-all ${activeTab === item.id ? 'bg-orange-600' : 'hover:bg-stone-800'}`}>
-                                    <Icon name={item.icon} size={18} className="ml-1" />
-                                    <span className="hidden sm:inline">{item.label}</span>
+                        <div className="flex gap-1 md:gap-4">
+                            {[
+                                { id: 'home', label: 'ראשי' },
+                                { id: 'about', label: 'השכלה וניסיון' },
+                                { id: 'articles', label: 'מאמרים' },
+                                { id: 'contact', label: 'קשר' }
+                            ].map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveTab(item.id)}
+                                    className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                                        activeTab === item.id ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'
+                                    }`}
+                                >
+                                    {item.label}
                                 </button>
                             ))}
                         </div>
                     </div>
                 </nav>
             );
-        };
 
-        const Home = () => (
-            <div className="animate-fade-in">
-                <header className="text-center py-20 bg-gradient-to-b from-orange-100/50 to-white rounded-b-[5rem] mb-16 border-b border-orange-100">
-                    <div className="w-48 h-48 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner border-4 border-white">
-                        <Icon name="Music" size={70} className="text-orange-600" />
-                    </div>
-                    <h1 className="text-4xl md:text-7xl font-black text-stone-800 mb-4 px-4 leading-tight">המוח הגמיש</h1>
-                    <h2 className="text-2xl md:text-3xl font-bold text-orange-600 mb-6">{MY_NAME}</h2>
-                    <p className="text-xl md:text-2xl text-stone-600 max-w-4xl mx-auto px-6 font-light italic mb-10">
-                        "מפגשים חווייתיים המשלבים 45 שנות ניסיון קליני, מוסיקה ותנועה לשיפור איכות החיים בגיל השלישי והרביעי"
-                    </p>
-                    <div className="text-stone-400 font-medium text-lg italic">
-                        "המוסיקה מתחילה היכן שנגמרות המילים"
-                    </div>
-                </header>
-
-                <div className="max-w-6xl mx-auto px-4 pb-24">
-                    {/* שורה ראשונה - 3 דגשים */}
-                    <div className="grid md:grid-cols-3 gap-8 mb-8">
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-orange-500 text-center">
-                            <Icon name="Zap" size={40} className="text-orange-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold mb-4 text-stone-800">המאזן ההורמונאלי</h3>
-                            <p className="text-stone-600 leading-relaxed">
-                                הפחתת <strong>קורטיזול</strong> (מתח) והגברה משמעותית של <strong>אנדורפינים</strong> ודופמין. שיפור מיידי בחיוניות וביכולת הריכוז.
-                            </p>
-                        </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-amber-500 text-center">
-                            <Icon name="Heart" size={40} className="text-amber-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold mb-4 text-stone-800">מעגל הזיכרון והרגש</h3>
-                            <p className="text-stone-600 leading-relaxed">
-                                הפעלת המערכת הלימבית לשימור זהות עצמית ורוגע פנימי דרך צלילי עבר וזיכרונות אוטוביוגרפיים.
-                            </p>
-                        </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-rose-500 text-center">
-                            <Icon name="Users" size={40} className="text-rose-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold mb-4 text-stone-800">הפגת בדידות</h3>
-                            <p className="text-stone-600 leading-relaxed">
-                                חיזוק השייכות הקהילתית והפחתת תחושת הבדידות דרך יצירת מעגלים חברתיים בשירה ותנועה.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* שורה שנייה - 2 דגשים מרכזיים */}
-                    <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-blue-500 text-center">
-                            <Icon name="Activity" size={40} className="text-blue-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold mb-4 text-stone-800">תנועה וטמפו</h3>
-                            <p className="text-stone-600 leading-relaxed">
-                                סנכרון התנועה עם קצב המוסיקה (Tempo) לשיפור קואורדינציה, שיווי משקל וביטחון בתנועה במרחב.
-                            </p>
-                        </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border-t-8 border-emerald-500 text-center">
-                            <Icon name="Sun" size={40} className="text-emerald-600 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold mb-4 text-stone-800">אווירה וחוסן</h3>
-                            <p className="text-stone-600 leading-relaxed">
-                                יצירת שמחה וצחוק המעלים את החוסן הנפשי והיכולת להתמודד עם אתגרי הגיל בחיוביות.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-
-        const About = () => {
-            const [imagePreview, setImagePreview] = useState(null);
-
-            const handleImageChange = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        setImagePreview(reader.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-
-            return (
-                <div className="max-w-4xl mx-auto px-4 py-16 animate-fade-in">
-                    <h2 className="text-4xl font-bold text-stone-800 mb-10 text-center">אודות והכשרה מקצועית</h2>
-                    
-                    <div className="bg-sky-50 rounded-[3rem] shadow-2xl overflow-hidden border border-sky-100 md:flex">
-                        <div className="md:w-2/5 bg-caramel p-10 flex flex-col items-center justify-center border-l border-caramel">
-                            <div className="profile-image-container mb-6 group cursor-pointer" onClick={() => document.getElementById('fileInput').click()}>
-                                {imagePreview ? (
-                                    <img src={imagePreview} alt="פרופיל" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-stone-400">
-                                        <Icon name="Camera" size={40} className="mb-2" />
-                                        <span className="text-xs">הוסף תמונת פרופיל</span>
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <Icon name="Edit" size={24} className="text-white" />
-                                </div>
-                                <input id="fileInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            const Home = () => (
+                <div className="animate-fade-in">
+                    <header className="py-20 px-6 text-center">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="inline-block bg-orange-100 text-orange-700 px-4 py-1.5 rounded-full text-sm font-black mb-6 uppercase tracking-wider">
+                                חדשנות בגיל המבוגר
                             </div>
-                            <h3 className="text-2xl font-bold text-stone-800">{MY_NAME}</h3>
-                            <p className="text-stone-600 font-medium text-center">מומחה לגיל השלישי והרביעי</p>
-                        </div>
+                            <h1 className="text-6xl md:text-8xl font-black mb-4 leading-tight text-stone-900 tracking-tight">
+                                המוח <span className="text-orange-600">הגמיש</span>
+                            </h1>
+                            
+                            {/* כפתור וואטסאפ מתחת לכותרת הראשית */}
+                            <div className="mb-8">
+                                <a 
+                                    href={WHATSAPP_LINK} 
+                                    target="_blank" 
+                                    className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-2xl font-black text-xl hover:bg-green-100 transition-colors border border-green-200 shadow-sm"
+                                    dir="ltr"
+                                >
+                                    <Icon name="MessageCircle" size={24} className="text-green-600" />
+                                    {MY_PHONE}
+                                </a>
+                            </div>
 
-                        <div className="md:w-3/5 p-10 space-y-6">
-                            <h4 className="text-2xl font-bold text-stone-800 border-b-2 border-orange-200 pb-2">הכשרה אקדמית וקלינית</h4>
-                            <ul className="space-y-4 text-lg">
-                                <li className="flex gap-3">
-                                    <Icon name="Award" className="text-orange-600 shrink-0" />
-                                    <span><strong>תואר ראשון בסיעוד מורחב</strong></span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <Icon name="Award" className="text-orange-600 shrink-0" />
-                                    <span><strong>תואר שני בחינוך (M.A)</strong> - התמחות בטכנולוגיות תקשוב ולמידה.</span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
-                                    <span><strong>התמחות על באונקולוגיה</strong></span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
-                                    <span><strong>התמחות על בהדרכה קלינית</strong></span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <Icon name="CheckCircle" className="text-orange-600 shrink-0" />
-                                    <span><strong>התמחות בהנחיית קבוצות</strong></span>
-                                </li>
-                                <li className="flex gap-3">
-                                    <Icon name="History" className="text-orange-600 shrink-0" />
-                                    <span>ניסיון קליני רב בטיפול בגיל השלישי והרביעי.</span>
-                                </li>
-                            </ul>
+                            <p className="text-2xl md:text-3xl text-stone-600 mb-12 font-light leading-relaxed max-w-2xl mx-auto">
+                                שילוב של מדע הנוירופלסטיות עם עולם הצליל והתנועה. מודל קליני ייחודי לשיפור איכות החיים והחוסן הנפשי.
+                            </p>
+                            <button onClick={() => setActiveTab('articles')} className="bg-stone-900 text-white px-12 py-5 rounded-2xl text-xl font-black hover:bg-orange-600 transition-all shadow-xl hover:-translate-y-1">
+                                גלו את המודל המדעי
+                            </button>
                         </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const Articles = () => {
-            const [expanded, setExpanded] = useState(null);
-            const articles = [
-                { id: 1, title: "מוסיקה ככלי לשיפור איכות החיים בדמנציה", summary: "מחקרים מראים כי אזורי הזיכרון המוסיקלי במוח נשמרים זמן רב יותר.", details: "השימוש במוסיקה מותאמת אישית מפחית תסמיני חרדה ודיכאון.", source: "Journal of Alzheimer's Disease", link: "#" },
-                { id: 2, title: "השפעת השירה הקבוצתית על רמות האוקסיטוצין", summary: "שירה משותפת מעלה באופן מיידי את רמת 'הורמון האהבה'.", details: "מעבר לשיפור הפיזיולוגי, השירה מייצרת 'סנכרון חברתי' חיוני.", source: "Frontiers in Psychology", link: "#" },
-                { id: 3, title: "נוירופלסטיות בגיל השלישי", summary: "האם המוח יכול להשתנות בגיל 80? התשובה היא כן מוחלט.", details: "למידה של מקצבים בונה קשרים עצביים חדשים ומחזקת את הרזרבה הקוגניטיבית.", source: "Nature Neuroscience", link: "#" },
-                { id: 4, title: "מניעת נפילות באמצעות גירוי שמיעתי", summary: "כיצד קצב מוסיקלי קבוע עוזר בייצוב ההליכה.", details: "המוח מסתנכרן עם הקצב, מה שמוביל להליכה בטוחה יותר.", source: "Archives of Phys. Med.", link: "#" },
-                { id: 5, title: "המעגל ההורמונאלי והשפעותיו", summary: "הקשר בין אדרנלין, דופמין ויכולת הריכוז.", details: "פעילות מהנה ומאתגרת תומכת בשימור הזיכרון לטווח ארוך.", source: "Endocrine Reviews", link: "#" }
-            ];
-            return (
-                <div className="max-w-4xl mx-auto px-4 py-16 animate-fade-in">
-                    <h2 className="text-4xl font-bold text-stone-800 mb-12 text-center">מאמרים ומקורות</h2>
-                    <div className="space-y-6">
-                        {articles.map(art => (
-                            <div key={art.id} className="bg-white p-8 rounded-3xl shadow-lg border border-stone-100">
-                                <h3 className="text-2xl font-bold text-orange-700 mb-2">{art.title}</h3>
-                                <p className="text-stone-600 text-lg mb-4">{art.summary}</p>
-                                {expanded === art.id ? (
-                                    <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-t">
-                                        <p className="mb-4 italic">{art.details}</p>
-                                        <p className="text-sm text-stone-500 mb-2 font-bold">מקור: {art.source}</p>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-orange-600 font-bold cursor-pointer hover:underline">קריאה של המקור המלא</span>
-                                            <button onClick={() => setExpanded(null)} className="text-stone-400">סגור</button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <button onClick={() => setExpanded(art.id)} className="text-orange-600 font-bold flex items-center gap-2">לדגשי המאמר והמקורות <Icon name="ChevronLeft" size={18} /></button>
-                                )}
+                    </header>
+                    
+                    <div className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            { icon: 'Music', title: 'קסם המוסיקה', desc: 'הפעלה סימולטנית של מרכזי שפה, רגש ותנועה במוח ליצירת חוויה שלמה.' },
+                            { icon: 'Palmtree', title: 'מרחב אסקפיזם', desc: 'אי של שקט ומנוחה מקשיי היום והשעה, המאפשר טעינה רגשית ומנטלית.' },
+                            { icon: 'Zap', title: 'הפגת כאב', desc: 'שימוש במקצבים (RAS) לשיפור מוטוריקה והפחתת תחושות כאב כרוניות.' },
+                            { icon: 'ShieldCheck', title: 'חוסן אישי', desc: 'בניית עמידות נפשית ומניעת הידרדרות קוגניטיבית דרך התנסויות חדשות.' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
+                                <div className="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center mb-6">
+                                    <Icon name={item.icon} size={28} className="text-orange-600" />
+                                </div>
+                                <h3 className="text-xl font-black mb-3 text-stone-800">{item.title}</h3>
+                                <p className="text-stone-500 text-base leading-relaxed">{item.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             );
-        };
 
-        const Contact = () => (
-            <div className="max-w-4xl mx-auto px-4 py-20 text-center animate-fade-in">
-                <div className="bg-white p-16 rounded-[4rem] shadow-2xl border border-stone-100 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-orange-600"></div>
-                    <Icon name="Phone" size={64} className="text-orange-600 mx-auto mb-8" />
-                    <h2 className="text-4xl font-bold mb-6 text-stone-800 italic">"מחכה להתרגש איתכם במפגש הבא"</h2>
-                    <p className="text-2xl text-stone-500 mb-12 leading-relaxed">לפרטים נוספים ותיאום סדנאות:</p>
-                    
-                    <div className="bg-stone-50 py-10 px-16 rounded-[2.5rem] inline-block shadow-inner border border-stone-200">
-                        <p className="text-stone-400 text-sm mb-2 uppercase tracking-widest">מספר הטלפון הישיר שלי</p>
-                        <span className="text-5xl md:text-7xl font-black text-stone-900 block" style={{direction: 'ltr'}}>
-                            {MY_PERMANENT_PHONE}
-                        </span>
+            const About = () => (
+                <div className="max-w-6xl mx-auto px-6 py-20 animate-fade-in">
+                    <div className="grid lg:grid-cols-12 gap-16">
+                        {/* Profile Sidebar */}
+                        <div className="lg:col-span-4 text-center lg:text-right">
+                            <div className="sticky top-32">
+                                <div className="w-64 h-64 mx-auto lg:mr-0 bg-stone-200 rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
+                                    {profileImage ? <img src={profileImage} className="w-full h-full object-cover" /> : <div className="flex flex-col items-center justify-center h-full text-stone-400"><Icon name="User" size={80} /></div>}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all"><Icon name="Camera" size={30} className="text-white"/></div>
+                                </div>
+                                <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (ev) => setProfileImage(ev.target.result);
+                                        reader.readAsDataURL(file);
+                                    }
+                                }} />
+                                <h2 className="text-4xl font-black mt-8 mb-2 text-stone-900">{MY_NAME}</h2>
+                                <p className="text-orange-600 font-bold text-xl mb-6">אח מוסמך (B.A, M.A)</p>
+                                <div className="h-1 w-20 bg-orange-600 rounded-full mx-auto lg:mr-0 mb-8"></div>
+                                <p className="text-stone-500 text-lg leading-relaxed font-medium italic">
+                                    "השילוב בין ניסיון קליני של עשורים לבין ההבנה שהמוח שלנו יכול להשתנות בכל גיל, הוא המפתח לאיכות חיים."
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Education Timeline */}
+                        <div className="lg:col-span-8 space-y-16">
+                            <section>
+                                <h3 className="text-3xl font-black mb-10 flex items-center gap-4">
+                                    <span className="bg-orange-100 text-orange-600 p-2 rounded-xl"><Icon name="GraduationCap" size={28} /></span>
+                                    הכשרה אקדמית ומקצועית
+                                </h3>
+                                <div className="border-r-2 border-stone-100 pr-8 space-y-12">
+                                    {[
+                                        { title: "M.A בחינוך", desc: "התמחות בטכנולוגיות תקשוב ולמידה. הבנת תהליכי למידה אצל מבוגרים.", year: "תואר שני" },
+                                        { title: "B.A בסיעוד", desc: "אוניברסיטת תל אביב. בסיס קליני איתן ורחב.", year: "תואר ראשון" },
+                                        { title: "הנחיית קבוצות", desc: "מומחיות בליווי תהליכים קבוצתיים, דינמיקה חברתית והובלת סדנאות.", year: "התמחות" },
+                                        { title: "הדרכה קלינית", desc: "הסמכה רשמית בניהול והכשרת צוותים רפואיים וסיעודיים.", year: "הסמכה" }
+                                    ].map((edu, idx) => (
+                                        <div key={idx} className="timeline-dot">
+                                            <span className="text-orange-600 font-black text-sm uppercase tracking-tighter">{edu.year}</span>
+                                            <h4 className="text-2xl font-bold text-stone-800 mt-1">{edu.title}</h4>
+                                            <p className="text-stone-500 text-lg mt-2">{edu.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            <section className="bg-stone-900 text-white p-12 rounded-[3rem] shadow-xl">
+                                <h3 className="text-3xl font-black mb-8 flex items-center gap-4">
+                                    <Icon name="Briefcase" size={28} className="text-orange-500" />
+                                    ניסיון קליני (45+ שנה)
+                                </h3>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <h4 className="text-orange-500 font-black text-xl">מומחיות בסיעוד</h4>
+                                        <ul className="space-y-3 text-stone-300 font-medium">
+                                            <li>• סיעוד אונקולוגי מתקדם</li>
+                                            <li>• טיפול בפצעים מורכבים</li>
+                                            <li>• ניהול מערכות סיעוד בכירות</li>
+                                        </ul>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h4 className="text-orange-500 font-black text-xl">הגיל המבוגר</h4>
+                                        <ul className="space-y-3 text-stone-300 font-medium">
+                                            <li>• ליווי הגיל השלישי והרביעי</li>
+                                            <li>• שיפור תפקוד קוגניטיבי</li>
+                                            <li>• ייעוץ משפחתי וקליני</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
 
-        const App = () => {
-            const [activeTab, setActiveTab] = useState('home');
-            useEffect(() => window.scrollTo(0, 0), [activeTab]);
+            const Articles = () => (
+                <div className="max-w-5xl mx-auto px-6 py-20 animate-fade-in">
+                    <h2 className="text-5xl font-black mb-16 text-center text-stone-900">מאמרים וידע קליני</h2>
+                    <div className="space-y-8">
+                        {[
+                            { color: 'border-orange-600', title: '1. מוזיקה וגמישות המוח (Neuroplasticity)', content: 'גמישות מוחית היא היכולת של המוח ליצור קשרים סינפטיים חדשים לאורך כל החיים. המוזיקה מפעילה רשתות עצביות נרחבות ומאפשרת למוח "לעקוף" אזורים פגועים. במצבי דעיכה קוגניטיבית, הזיכרון המוזיקלי נוטה להישמר בנפרד, ודרכו ניתן להעיר מחדש יכולות תקשורת ורגש.', bib: "דוידג', נ' (2009). המוח הגמיש." },
+                            { color: 'border-stone-800', title: '2. גירוי שמיעתי קצבי (RAS) ומניעת נפילות', content: 'שיטת ה-RAS משתמשת במקצבים חיצוניים כדי לסנכרן את התנועה המוטורית של הגוף. אצל מבוגרים, הסנכרון הזה משפר את אורך הצעד, מהירות ההליכה והביטחון העצמי, ובכך מפחית משמעותית את הסיכון לנפילות.', bib: "Thaut, M. H. (2015). Rhythm, Music, and the Brain." },
+                            { color: 'border-rose-600', title: '3. המעגל ההורמונאלי והקשר החברתי', content: 'שירה ותנועה קבוצתית מפעילות את המערכת האנדוקרינית ומעודדות הפרשת אוקסיטוצין (הורמון הקשר) ואנדורפינים. תהליך זה מפחית רמות קורטיזול (סטרס), מחזק את המערכת החיסונית ומפיג את תחושת הבדידות.', bib: "סאקס, א' (2009). מוזיקופיליה." }
+                        ].map((art, idx) => (
+                            <section key={idx} className={`bg-white p-12 rounded-[3rem] border-r-8 ${art.color} shadow-sm hover:shadow-md transition-shadow`}>
+                                <h3 className="text-3xl font-black mb-6 text-stone-800">{art.title}</h3>
+                                <p className="text-xl text-stone-600 leading-relaxed font-medium mb-6">{art.content}</p>
+                                <p className="text-stone-400 font-bold italic text-sm">ביבליוגרפיה: {art.bib}</p>
+                            </section>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const Contact = () => (
+                <div className="max-w-4xl mx-auto px-6 py-20 animate-fade-in">
+                    <div className="bg-white rounded-[4rem] shadow-2xl border border-stone-100 overflow-hidden">
+                        <div className="bg-stone-900 p-16 text-center text-white">
+                            <h2 className="text-5xl font-black mb-4">יצירת קשר</h2>
+                            <p className="text-stone-400 text-xl font-medium">לתיאום מפגשים, סדנאות או ייעוץ מקצועי</p>
+                        </div>
+                        
+                        <div className="p-16 md:p-24 text-center">
+                            <div className="mb-8">
+                                <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                                    <Icon name="Phone" size={40} className="text-orange-600" />
+                                </div>
+                                <h3 className="text-4xl font-black text-stone-900 mb-4">{MY_NAME}</h3>
+                                <div className="space-y-2 mb-12">
+                                    <p className="text-orange-600 font-black text-2xl">השכלה רחבה (B.A, M.A) וניסיון עשיר</p>
+                                    <p className="text-stone-500 font-bold text-xl">מעל 45 שנות ניסיון במערכות הבריאות</p>
+                                </div>
+                                
+                                <div className="group relative inline-block">
+                                    <div className="absolute -inset-4 bg-orange-600/10 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <a href={WHATSAPP_LINK} target="_blank" className="relative text-5xl md:text-7xl font-black text-stone-900 tracking-tight hover:text-orange-600 transition-colors" dir="ltr">
+                                        {MY_PHONE}
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-20 border-t border-stone-50 pt-12 space-y-4">
+                                <p className="text-stone-600 font-bold text-lg">
+                                    המפגשים מציעים אי של אסקפיזים ומנוחה הכרחית מקשיי היום והשעה.
+                                </p>
+                                <p className="text-stone-400 font-black text-xl italic leading-relaxed">
+                                    "היכן שהמילים נגמרות - שם המוסיקה מתחילה"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
 
             return (
-                <div className="min-h-screen flex flex-col">
-                    <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <main className="flex-grow">
+                <div className="min-h-screen">
+                    <Navbar />
+                    <main>
                         {activeTab === 'home' && <Home />}
                         {activeTab === 'about' && <About />}
                         {activeTab === 'articles' && <Articles />}
                         {activeTab === 'contact' && <Contact />}
                     </main>
-                    <footer className="bg-stone-900 text-stone-400 py-12 text-center">
-                        <p className="text-xl font-bold text-white mb-2 italic">המוח הגמיש - צליל, תנועה וחוסן</p>
-                        <p className="text-orange-400 italic mb-4">"המוסיקה מתחילה היכן שנגמרות המילים"</p>
-                        <p>© {new Date().getFullYear()} | {MY_NAME} | {MY_PERMANENT_PHONE}</p>
+                    <footer className="py-16 text-center border-t border-stone-100 text-stone-400 font-bold">
+                        <p>© {new Date().getFullYear()} | {MY_NAME} | <span dir="ltr">{MY_PHONE}</span></p>
                     </footer>
                 </div>
             );
